@@ -43,8 +43,6 @@ An AI-powered predictive load shedding risk forecasting system for Bangladesh at
 - **Coverage:** 477 Upazilas across 64 Districts, 8 Divisions
 - **Alert System:** Event-driven NLP-based alert generation
 
-See [`project/README.md`](project/README.md) for full details.
-
 ---
 
 ## Theory
