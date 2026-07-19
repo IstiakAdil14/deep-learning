@@ -1,0 +1,188 @@
+import joblib
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+
+# ==========================
+# Load trained model
+# ==========================
+model = joblib.load("models/logistic_regression.pkl")
+scaler = joblib.load("models/scaler.pkl")
+target_encoder = joblib.load("models/target_encoder.pkl")
+encoders = joblib.load("models/encoders.pkl")
+
+# Get the correct feature order from the scaler
+feature_order = list(scaler.feature_names_in_)
+
+# ==========================
+# User Inputs
+# ==========================
+
+print("="*60)
+print(" SMART GRID RISK PREDICTION (NEXT 4 HOURS)")
+print("="*60)
+
+temperature = float(input("Temperature (°C): "))
+humidity = float(input("Humidity (%): "))
+rainfall = float(input("Rainfall (mm): "))
+wind_speed = float(input("Wind Speed (m/s): "))
+
+electricity_demand = float(input("Electricity Demand (MW): "))
+renewable_generation = float(input("Renewable Generation (MW): "))
+transformer_load = float(input("Transformer Load (%): "))
+
+transformer_age = int(input("Transformer Age (years): "))
+transformer_capacity = float(input("Transformer Capacity (kVA): "))
+outage_history = int(input("Previous Outages: "))
+population_density = float(input("Population Density: "))
+industrial_load_ratio = float(input("Industrial Load Ratio (0-1): "))
+
+hour = int(input("Current Hour (0-23): "))
+weekday = int(input("Weekday (0=Mon ... 6=Sun): "))
+
+district = input("District: ")
+upazila = input("Upazila: ")
+area_type = input("Area Type (Urban/Rural): ")
+substation_id = input("Substation ID: ")
+feeder_id = input("Feeder ID: ")
+maintenance_due = input("Maintenance Due (Yes/No): ")
+weather_state = input("Weather (Sunny/Cloudy/Rainy): ")
+
+# =====================================================
+# Label Encoding
+# (Using saved encoders from training)
+# =====================================================
+
+# Encode categorical inputs using trained encoders
+# Get the integer value for each categorical input
+try:
+    weather_state = list(encoders["weather_state"].classes_).index(weather_state)
+except ValueError:
+    weather_state = 0  # Default to first class
+
+try:
+    area_type = list(encoders["area_type"].classes_).index(area_type)
+except ValueError:
+    area_type = 0
+
+try:
+    maintenance_due = list(encoders["maintenance_due"].classes_).index(maintenance_due)
+except ValueError:
+    maintenance_due = 0
+
+try:
+    district = list(encoders["district"].classes_).index(district)
+except ValueError:
+    district = 0
+
+try:
+    upazila = list(encoders["upazila"].classes_).index(upazila)
+except ValueError:
+    upazila = 0
+
+# Convert IDs into integers
+substation_id = int(substation_id.replace("SS_", ""))
+feeder_id = int(feeder_id.replace("FDR_", ""))
+
+# ==========================
+# Feature Vector
+# ==========================
+
+# Create input data with correct feature order matching the training data
+data = {
+    'hour': hour,
+    'weekday': weekday,
+    'temperature': temperature,
+    'humidity': humidity,
+    'rainfall': rainfall,
+    'wind_speed': wind_speed,
+    'weather_state': weather_state,
+    'electricity_demand': electricity_demand,
+    'renewable_generation': renewable_generation,
+    'transformer_load': transformer_load,
+    'district': district,
+    'upazila': upazila,
+    'area_type': area_type,
+    'substation_id': substation_id,
+    'feeder_id': feeder_id,
+    'transformer_age': transformer_age,
+    'transformer_capacity': transformer_capacity,
+    'outage_history': outage_history,
+    'maintenance_due': maintenance_due,
+    'population_density': population_density,
+    'industrial_load_ratio': industrial_load_ratio
+}
+
+X = pd.DataFrame([data])
+
+# Reorder columns to match the scaler's expected order
+X = X[feature_order]
+
+# ==========================
+# Scale
+# ==========================
+
+X_scaled = scaler.transform(X)
+
+# ==========================
+# Prediction
+# ==========================
+
+prediction = model.predict(X_scaled)[0]
+probability = model.predict_proba(X_scaled)[0]
+
+risk = target_encoder.inverse_transform([prediction])[0]
+
+# Calculate prediction time
+current_time = datetime.now().replace(
+    hour=hour,
+    minute=0,
+    second=0,
+    microsecond=0
+)
+prediction_time = current_time + timedelta(hours=4)
+
+# ==========================
+# Display Results
+# ==========================
+
+print("\n")
+print("="*60)
+print("PREDICTION RESULTS")
+print("="*60)
+
+print(f"\nCurrent Time   : {current_time.strftime('%H:%M')}")
+print(f"Prediction Time: {prediction_time.strftime('%H:%M')} (+4 Hours)")
+print(f"\nPredicted Risk : {risk}")
+
+print("\nConfidence:")
+
+for label, prob in zip(target_encoder.classes_, probability):
+    print(f"{label:<8}: {prob*100:.2f}%")
+
+print("\n")
+
+# ==========================
+# Recommendations
+# ==========================
+
+if risk == "Low":
+    print("Grid Status : Stable")
+    print("\nRecommendation:")
+    print("✓ Grid operating normally.")
+    print("✓ No preventive action required.")
+
+elif risk == "Medium":
+    print("Grid Status : Moderate Stress")
+    print("\nRecommendation:")
+    print("• Monitor transformer loading.")
+    print("• Reduce peak demand if possible.")
+    print("• Prepare standby generation.")
+
+else:  # High
+    print("Grid Status : Critical")
+    print("\nRecommendation:")
+    print("⚠ High overload risk detected.")
+    print("⚠ Dispatch maintenance team.")
+    print("⚠ Prepare load shedding plan.")
+    print("⚠ Increase reserve generation if available.")
