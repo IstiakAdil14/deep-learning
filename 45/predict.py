@@ -9,6 +9,10 @@ from datetime import datetime, timedelta
 model = joblib.load("models/logistic_regression.pkl")
 scaler = joblib.load("models/scaler.pkl")
 target_encoder = joblib.load("models/target_encoder.pkl")
+<<<<<<< HEAD
+=======
+encoders = joblib.load("models/encoders.pkl")
+>>>>>>> 8e1417746cdc5e611f6e5caa973008461de0a6e2
 
 # Get the correct feature order from the scaler
 feature_order = list(scaler.feature_names_in_)
@@ -49,6 +53,7 @@ weather_state = input("Weather (Sunny/Cloudy/Rainy): ")
 
 # =====================================================
 # Label Encoding
+<<<<<<< HEAD
 # (Must match preprocessing notebook)
 # =====================================================
 
@@ -100,6 +105,37 @@ area_type = area_map.get(area_type, 0)
 maintenance_due = maintenance_map.get(maintenance_due, 0)
 district = district_map.get(district, 0)
 upazila = upazila_map.get(upazila, 0)
+=======
+# (Using saved encoders from training)
+# =====================================================
+
+# Encode categorical inputs using trained encoders
+# Get the integer value for each categorical input
+try:
+    weather_state = list(encoders["weather_state"].classes_).index(weather_state)
+except ValueError:
+    weather_state = 0  # Default to first class
+
+try:
+    area_type = list(encoders["area_type"].classes_).index(area_type)
+except ValueError:
+    area_type = 0
+
+try:
+    maintenance_due = list(encoders["maintenance_due"].classes_).index(maintenance_due)
+except ValueError:
+    maintenance_due = 0
+
+try:
+    district = list(encoders["district"].classes_).index(district)
+except ValueError:
+    district = 0
+
+try:
+    upazila = list(encoders["upazila"].classes_).index(upazila)
+except ValueError:
+    upazila = 0
+>>>>>>> 8e1417746cdc5e611f6e5caa973008461de0a6e2
 
 # Convert IDs into integers
 substation_id = int(substation_id.replace("SS_", ""))
