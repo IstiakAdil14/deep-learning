@@ -1,0 +1,67 @@
+# ==========================
+# Python (Backend & Models)
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# ==========================
+# Node.js & Next.js (Frontend)
+# ==========================
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+out/
+build/
+
+# Next.js environment variables
+.env*.local
+
+# ==========================
+# Jupyter Notebooks
+# ==========================
+.ipynb_checkpoints
+
+# ==========================
+# OS / IDE
+# ==========================
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore very large datasets if needed (uncomment if the dataset shouldn't be pushed)
+# dataset/*.csv
