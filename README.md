@@ -1,4 +1,4 @@
-# 🧠 Deep Learning — CSE-460
+# 🧠 Deep Learning — CSE-459 & 460
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-Keras-orange)
