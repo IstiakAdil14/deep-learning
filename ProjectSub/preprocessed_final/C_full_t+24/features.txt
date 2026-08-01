@@ -1,0 +1,10 @@
+temperature
+humidity
+rainfall
+hour_sin
+hour_cos
+weekday_sin
+weekday_cos
+peak_hour
+day
+month
